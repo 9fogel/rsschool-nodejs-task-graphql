@@ -13,6 +13,8 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
       },
     },
     async handler(req) {
+      console.log(req.body.query);
+      console.log(req.body.variables);
       return {};
     },
   });
