@@ -30,6 +30,12 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         source: query,
         contextValue: fastify,
       });
+      const profile = await prisma.post.findUnique({
+        where: {
+          id: 'be4a21fa-cdc0-47a8-a5f2-7dae6e362671',
+        }
+      });
+      console.log(`CONSOLE`, profile);
       return result;
     },
   });
