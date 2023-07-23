@@ -40,7 +40,7 @@ const PostType = new GraphQLObjectType({
     id: { type: new GraphQLNonNull(UUIDType) },
     title: { type: GraphQLString },
     content: { type: GraphQLString },
-    authorId:{ type: UUIDType },
+    authorId:{ type: new GraphQLNonNull(UUIDType) },
   }),
 });
 
@@ -50,7 +50,7 @@ const ProfileType = new GraphQLObjectType({
     id: { type: new GraphQLNonNull(UUIDType) },
     isMale: { type: GraphQLBoolean },
     yearOfBirth: { type: GraphQLInt },
-    userId: { type: UUIDType },
+    userId: { type: new GraphQLNonNull(UUIDType) },
     memberTypeId: { type: GraphQLString },
     memberType: {
       type: MemberType,
@@ -80,7 +80,7 @@ const UserType = new GraphQLObjectType({
       type: ProfileType,
       resolve: async (parent, _, context) => {
         try {
-          const profile: typeof ProfileType | null = await context.prisma.prisma.profile.findUnique({
+          const profile: typeof ProfileType | null = await context.prisma.profile.findUnique({
             where: {
               // id: parent.id,
               userId: parent.id,
