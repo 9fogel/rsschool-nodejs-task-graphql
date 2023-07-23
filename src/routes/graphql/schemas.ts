@@ -96,8 +96,13 @@ const UserType = new GraphQLObjectType({
       type: new GraphQLList(PostType),
       resolve: async (parent, _, context) => {
         try {
-          const posts: Array<typeof PostType> | Array<null> = await context.prisma.post.findMany()
-            .filter((post) => post.authorId == parent.id);
+          const posts: Array<typeof PostType> | Array<null> = await context.prisma.post.findMany({
+            where: {
+              authorId: {
+                equals: parent.id,
+              }
+            }
+          });
           return posts;
         } catch {
           return null;

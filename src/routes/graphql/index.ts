@@ -7,7 +7,7 @@ const mySchema: GraphQLSchema = new GraphQLSchema({
 });
 
 const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
-  const { prisma, httpErrors } = fastify;
+  // const { prisma, httpErrors } = fastify;
 
   fastify.route({
     url: '/',
@@ -21,6 +21,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
     async handler(req) {
       const query = req.body.query;
       const variables = req.body.variables;
+      console.log('VARIABLES', variables);
 
       const result = await graphql({
         schema: mySchema,
