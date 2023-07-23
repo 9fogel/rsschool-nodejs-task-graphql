@@ -52,6 +52,21 @@ const ProfileType = new GraphQLObjectType({
     yearOfBirth: { type: GraphQLInt },
     userId: { type: UUIDType },
     memberTypeId: { type: GraphQLString },
+    memberType: {
+      type: MemberType,
+      resolve: async (parent, _, context) => {
+        try {
+          const memberType: typeof MemberType | null = await context.prisma.memberType.findUnique({
+            where: {
+              id: parent.memberTypeId,
+            },
+          });
+          return memberType;
+        } catch {
+          return null;
+        }
+      }
+    }
   }),
 });
 
@@ -63,7 +78,7 @@ const UserType = new GraphQLObjectType({
     balance: { type: GraphQLFloat },
     profile: {
       type: ProfileType,
-      resolve: async (parent, args, context) => {
+      resolve: async (parent, _, context) => {
         try {
           const profile: typeof ProfileType | null = await context.prisma.prisma.profile.findUnique({
             where: {
