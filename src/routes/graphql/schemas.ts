@@ -82,7 +82,6 @@ const UserType = new GraphQLObjectType({
         try {
           const profile: typeof ProfileType | null = await context.prisma.profile.findUnique({
             where: {
-              // id: parent.id,
               userId: parent.id,
             },
           });
@@ -104,6 +103,44 @@ const UserType = new GraphQLObjectType({
             }
           });
           return posts;
+        } catch {
+          return null;
+        }
+      }
+    },
+    userSubscribedTo: {
+      type: new GraphQLList(UserType),
+      resolve: async (parent, _, context) => {
+        try {
+          const users: Array<typeof UserType> | Array<null> = await context.prisma.user.findMany({
+            where: {
+              subscribedToUser: {
+                some: {
+                  subscriberId: parent.id,
+                },
+              },
+            },
+          });;
+          return users;
+        } catch {
+          return null;
+        }
+      }
+    },
+    subscribedToUser: {
+      type: new GraphQLList(UserType),
+      resolve: async (parent, _, context) => {
+        try {
+          const users: Array<typeof UserType> | Array<null> = await context.prisma.user.findMany({
+            where: {
+              userSubscribedTo: {
+                some: {
+                  authorId: parent.id,
+                },
+              },
+            },
+          });;
+          return users;
         } catch {
           return null;
         }
