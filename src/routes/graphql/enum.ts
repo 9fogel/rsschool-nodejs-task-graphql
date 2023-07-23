@@ -7,14 +7,11 @@ import { MemberTypeId } from '../member-types/schemas.js';
 const MemberTypeIdType = new GraphQLEnumType({
   name: 'MemberTypeId',
   values: {
-    BASIC: {
+    basic: {
       value: MemberTypeId.BASIC,
-      // value: MemberTypeId.BASIC.toUpperCase(),
-      // value: MemberTypeId[0],
     },
-    BUSINESS: {
+    business: {
       value: MemberTypeId.BUSINESS,
-      // value: MemberTypeId[1],
     },
   },
 });
