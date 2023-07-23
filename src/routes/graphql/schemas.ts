@@ -61,6 +61,21 @@ const UserType = new GraphQLObjectType({
     id: { type: new GraphQLNonNull(UUIDType) },
     name: { type: GraphQLString },
     balance: { type: GraphQLFloat },
+    profile: {
+      type: ProfileType,
+      resolve: async (parent, args, context) => {
+        try {
+          const profile: typeof ProfileType | null = await context.prisma.prisma.profile.findUnique({
+            where: {
+              id: parent.userId,
+            },
+          });
+          return profile;
+        } catch {
+          return null;
+        }
+      }
+    }
   }),
 });
 
