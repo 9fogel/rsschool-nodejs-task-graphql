@@ -5,6 +5,7 @@ import { Type } from '@fastify/type-provider-typebox';
 import { GraphQLFloat, GraphQLInt, GraphQLList, GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLBoolean } from 'graphql';
 // import { MemberType } from '@prisma/client';
 import { UUIDType } from './types/uuid.js';
+import MemberTypeIdType from './enum.js';
 
 export const gqlResponseSchema = Type.Partial(
   Type.Object({
@@ -28,7 +29,8 @@ export const createGqlResponseSchema = {
 const MemberType = new GraphQLObjectType({
   name: 'memberType',
   fields: () => ({
-    id: { type: new GraphQLNonNull(GraphQLString) },
+    // id: { type: new GraphQLNonNull(GraphQLString) },
+    id: { type: new GraphQLNonNull(MemberTypeIdType) },
     discount: { type: GraphQLFloat },
     postsLimitPerMonth: { type: GraphQLInt },
   }),
@@ -69,13 +71,17 @@ export const RootQuery = new GraphQLObjectType({
   fields: {
     memberType: {
       type: MemberType,
-      args: { id: { type: GraphQLString } },
+      args: { id: { type: new GraphQLNonNull(MemberTypeIdType) } },
+      // args: { id: { type: GraphQLString } },
       resolve: async (_, args: { id: string }, context) => {
         const memberType: typeof MemberType | null = await context.prisma.memberType.findUnique({
           where: {
             id: args.id,
           },
         });
+        if (memberType === null) {
+          throw context.httpErrors.notFound();
+        }
         return memberType;
       }
     },
@@ -91,11 +97,14 @@ export const RootQuery = new GraphQLObjectType({
       type: PostType,
       args: { id: { type: new GraphQLNonNull(UUIDType) } },
       resolve: async (_, args: { id: string }, context) => {
-        const post: typeof PostType = await context.prisma.post.findUnique({
+        const post: typeof PostType | null = await context.prisma.post.findUnique({
           where: {
             id: args.id,
           },
         });
+        if (post === null) {
+          throw context.httpErrors.notFound();
+        }
         return post;
       }
     },
@@ -111,11 +120,14 @@ export const RootQuery = new GraphQLObjectType({
       type: ProfileType,
       args: { id: { type: new GraphQLNonNull(UUIDType) } },
       resolve: async (_, args: { id: string }, context) => {
-        const profile: typeof ProfileType = await context.prisma.profile.findUnique({
+        const profile: typeof ProfileType | null = await context.prisma.profile.findUnique({
           where: {
             id: args.id,
           },
-        })
+        });
+        if (profile === null) {
+          throw context.httpErrors.notFound();
+        }
         return profile;
       }
     },
@@ -131,11 +143,14 @@ export const RootQuery = new GraphQLObjectType({
       type: UserType,
       args: { id: { type: new GraphQLNonNull(UUIDType) } },
       resolve: async (_, args: { id: string }, context) => {
-        const user: typeof UserType = await context.prisma.user.findUnique({
+        const user: typeof UserType | null = await context.prisma.user.findUnique({
           where: {
             id: args.id,
           },
         });
+        if (user === null) {
+          throw context.httpErrors.notFound();
+        }
         return user;
       }
     },

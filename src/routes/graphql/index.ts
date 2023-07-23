@@ -19,23 +19,15 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
       },
     },
     async handler(req) {
-      //TODO: вызов graphql сделать с нужными параметрами (схема, текст запроса, переменные)
-      // console.log(req.body.query);
-      // console.log(req.body.variables);
-
       const query = req.body.query;
+      const variables = req.body.variables;
 
       const result = await graphql({
         schema: mySchema,
         source: query,
+        variableValues: variables,
         contextValue: fastify,
       });
-      const profile = await prisma.post.findUnique({
-        where: {
-          id: 'be4a21fa-cdc0-47a8-a5f2-7dae6e362671',
-        }
-      });
-      console.log(`CONSOLE`, profile);
       return result;
     },
   });
