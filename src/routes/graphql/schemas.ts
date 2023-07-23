@@ -82,10 +82,23 @@ const UserType = new GraphQLObjectType({
         try {
           const profile: typeof ProfileType | null = await context.prisma.prisma.profile.findUnique({
             where: {
-              id: parent.userId,
+              // id: parent.id,
+              userId: parent.id,
             },
           });
           return profile;
+        } catch {
+          return null;
+        }
+      }
+    },
+    posts: {
+      type: new GraphQLList(PostType),
+      resolve: async (parent, _, context) => {
+        try {
+          const posts: Array<typeof PostType> | Array<null> = await context.prisma.post.findMany()
+            .filter((post) => post.authorId == parent.id);
+          return posts;
         } catch {
           return null;
         }
@@ -101,16 +114,16 @@ export const RootQuery = new GraphQLObjectType({
       type: MemberType,
       args: { id: { type: new GraphQLNonNull(MemberTypeIdType) } },
       resolve: async (_, args: { id: string }, context) => {
-        const memberType: typeof MemberType | null = await context.prisma.memberType.findUnique({
-          where: {
-            id: args.id,
-          },
-        });
-        // if (memberType === null) {
-        //   return null;
-        //   // throw context.httpErrors.notFound();
-        // }
-        return memberType;
+        try {
+          const memberType: typeof MemberType | null = await context.prisma.memberType.findUnique({
+            where: {
+              id: args.id,
+            },
+          });
+          return memberType;
+        } catch {
+          return null;
+        }
       }
     },
     memberTypes: {
