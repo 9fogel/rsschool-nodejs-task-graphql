@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Type } from '@fastify/type-provider-typebox';
-import { GraphQLFloat, GraphQLInt, GraphQLList, GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLBoolean } from 'graphql';
+import { GraphQLFloat, GraphQLInt, GraphQLList, GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLBoolean, GraphQLInputObjectType } from 'graphql';
 import { UUIDType } from './types/uuid.js';
 import MemberTypeIdType from './enum.js';
 
@@ -250,3 +251,171 @@ export const RootQuery = new GraphQLObjectType({
     }
   }
 });
+
+const createPostDto = new GraphQLInputObjectType({
+  name: 'CreatePostInput',
+  fields: () => ({
+    title: { type: new GraphQLNonNull(GraphQLString) },
+    content: { type: new GraphQLNonNull(GraphQLString) },
+    authorId:{ type: new GraphQLNonNull(UUIDType) },
+  }),
+});
+
+const createUserDto = new GraphQLInputObjectType({
+  name: 'CreateUserInput',
+  fields: () => ({
+    name: { type: new GraphQLNonNull(GraphQLString) },
+    balance: { type: new GraphQLNonNull(GraphQLFloat) },
+  }),
+});
+
+const createProfileDto = new GraphQLInputObjectType({
+  name: 'CreateProfileInput',
+  fields: () => ({
+    isMale: { type: new GraphQLNonNull(GraphQLBoolean) },
+    yearOfBirth: { type: new GraphQLNonNull(GraphQLInt) },
+    userId: { type: new GraphQLNonNull(UUIDType) },
+    memberTypeId: { type: new GraphQLNonNull(GraphQLString) },
+  }),
+});
+
+const changePostDto = new GraphQLInputObjectType({
+  name: 'ChangePostInput',
+  fields: () => ({
+    title: { type: GraphQLString },
+    content: { type: GraphQLString },
+    authorId:{ type: UUIDType },
+  }),
+});
+
+const changeUserDto = new GraphQLInputObjectType({
+  name: 'ChangeUserInput',
+  fields: () => ({
+    name: { type: GraphQLString },
+    balance: { type: GraphQLFloat },
+  }),
+});
+
+const changeProfileDto = new GraphQLInputObjectType({
+  name: 'ChangeProfileInput',
+  fields: () => ({
+    isMale: { type: GraphQLBoolean },
+    yearOfBirth: { type: GraphQLInt },
+    userId: { type: UUIDType },
+    memberTypeId: { type: GraphQLString },
+  }),
+});
+
+export const Mutation = new GraphQLObjectType({
+  name: 'mutation',
+  fields: {
+    createPost: {
+      type: PostType,
+      args: { dto: { type: new GraphQLNonNull(createPostDto)} },
+      resolve: async (_, args, context) => {
+        const newPost: typeof PostType = await context.prisma.post.create({
+          data: args.dto,
+        });
+      return newPost;
+      }
+    },
+    createUser: {
+      type: UserType,
+      args: { dto: { type: new GraphQLNonNull(createUserDto)} },
+      resolve: async (_, args, context) => {
+        const newUser: typeof UserType = await context.prisma.user.create({
+          data: args.dto,
+        });
+      return newUser;
+      }
+    },
+    createProfile: {
+      type: ProfileType,
+      args: { dto: { type: new GraphQLNonNull(createProfileDto)} },
+      resolve: async (_, args, context) => {
+        const newProfile: typeof ProfileType = await context.prisma.profile.create({
+          data: args.dto,
+        });
+      return newProfile;
+      }
+    },
+    changePost: {
+      type: PostType,
+      args: {
+        id: { type: new GraphQLNonNull(UUIDType) },
+        dto: { type: new GraphQLNonNull(changePostDto)}
+      },
+      resolve: async (_, args, context) => {
+        const updatedPost: typeof PostType = await context.prisma.post.update({
+          where: { id: args.id },
+          data: args.dto,
+        });
+      return updatedPost;
+      }
+    },
+    changeUser: {
+      type: UserType,
+      args: {
+        id: { type: new GraphQLNonNull(UUIDType) },
+        dto: { type: new GraphQLNonNull(changeUserDto)}
+      },
+      resolve: async (_, args, context) => {
+        const updatedUser: typeof UserType = await context.prisma.user.update({
+          where: { id: args.id },
+          data: args.dto,
+        });
+      return updatedUser;
+      }
+    },
+    changeProfile: {
+      type: ProfileType,
+      args: {
+        id: { type: new GraphQLNonNull(UUIDType) },
+        dto: { type: new GraphQLNonNull(changeProfileDto)}
+      },
+      resolve: async (_, args, context) => {
+        const updatedProfile: typeof ProfileType = await context.prisma.profile.update({
+          where: { id: args.id },
+          data: args.dto,
+        });
+      return updatedProfile;
+      }
+    },
+    deletePost: {
+      type: GraphQLBoolean,
+      args: { id: { type: new GraphQLNonNull(UUIDType) } },
+      resolve: async (_, args, context) => {
+        const deletedPost = await context.prisma.post.delete({
+          where: {
+            id: args.id,
+          },
+        });
+        return !!deletedPost;
+      }
+    },
+    deleteUser: {
+      type: GraphQLBoolean,
+      args: { id: { type: new GraphQLNonNull(UUIDType) } },
+      resolve: async (_, args, context) => {
+        const deletedUser = await context.prisma.user.delete({
+          where: {
+            id: args.id,
+          },
+        });
+        return !!deletedUser;
+      }
+    },
+    deleteProfile: {
+      type: GraphQLBoolean,
+      args: { id: { type: new GraphQLNonNull(UUIDType) } },
+      resolve: async (_, args, context) => {
+        const deletedProfile = await context.prisma.profile.delete({
+          where: {
+            id: args.id,
+          },
+        });
+        return !!deletedProfile;
+      }
+    }
+  }
+})
