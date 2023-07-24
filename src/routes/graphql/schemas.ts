@@ -301,7 +301,6 @@ const changeProfileDto = new GraphQLInputObjectType({
   fields: () => ({
     isMale: { type: GraphQLBoolean },
     yearOfBirth: { type: GraphQLInt },
-    userId: { type: UUIDType },
     memberTypeId: { type: GraphQLString },
   }),
 });
@@ -415,6 +414,47 @@ export const Mutation = new GraphQLObjectType({
           },
         });
         return !!deletedProfile;
+      }
+    },
+    subscribeTo: {
+      type: UserType,
+      args: {
+        userId: { type: new GraphQLNonNull(UUIDType) },
+        authorId: { type: new GraphQLNonNull(UUIDType) },
+      },
+      resolve: async (_, args, context) => {
+        const updatedUser = context.prisma.user.update({
+          where: {
+            id: args.userId,
+          },
+          data: {
+            userSubscribedTo: {
+              create: {
+                authorId: args.authorId,
+              },
+            },
+          },
+        });
+        return updatedUser;
+      }
+
+    },
+    unsubscribeFrom: {
+      type: GraphQLBoolean,
+      args: {
+        userId: { type: new GraphQLNonNull(UUIDType) },
+        authorId: { type: new GraphQLNonNull(UUIDType) },
+      },
+      resolve: async (_, args, context) => {
+        const result = await context.prisma.subscribersOnAuthors.delete({
+          where: {
+            subscriberId_authorId: {
+              subscriberId: args.userId,
+              authorId: args.authorId,
+            },
+          },
+        });
+        return !!result;
       }
     }
   }
