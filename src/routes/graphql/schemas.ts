@@ -56,7 +56,6 @@ const ProfileType = new GraphQLObjectType({
     memberTypeId: { type: GraphQLString },
     memberType: {
       type: MemberType,
-      // resolve: async (parent, _, context) => {
         resolve: async (parent, _, context, info) => {
         try {
           let dl = context.dataloaders.get(info.fieldNodes);
@@ -75,12 +74,6 @@ const ProfileType = new GraphQLObjectType({
             context.dataloaders.set(info.fieldNodes, dl);
           }
           return dl.load(parent.memberTypeId);
-          // const memberType: typeof MemberType | null = await context.prisma.memberType.findUnique({
-          //   where: {
-          //     id: parent.memberTypeId,
-          //   },
-          // });
-          // return memberType;
         } catch {
           return null;
         }
@@ -97,7 +90,6 @@ const UserType = new GraphQLObjectType({
     balance: { type: GraphQLFloat },
     profile: {
       type: ProfileType,
-      // resolve: async (parent, _, context) => {
         resolve: async (parent, _, context, info) => {
         try {
           let dl = context.dataloaders.get(info.fieldNodes);
@@ -116,12 +108,6 @@ const UserType = new GraphQLObjectType({
             context.dataloaders.set(info.fieldNodes, dl);
           }
           return dl.load(parent.id);
-          // const profile: typeof ProfileType | null = await context.prisma.profile.findUnique({
-          //   where: {
-          //     userId: parent.id,
-          //   },
-          // });
-          // return profile;
         } catch {
           return null;
         }
@@ -129,7 +115,6 @@ const UserType = new GraphQLObjectType({
     },
     posts: {
       type: new GraphQLList(PostType),
-      // resolve: async (parent, _, context) => {
         resolve: async (parent, _, context, info) => {
         try {
           let dl = context.dataloaders.get(info.fieldNodes);
@@ -148,14 +133,6 @@ const UserType = new GraphQLObjectType({
             context.dataloaders.set(info.fieldNodes, dl);
           }
         return dl.load(parent.id);
-          // const posts: Array<typeof PostType> | Array<null> = await context.prisma.post.findMany({
-          //   where: {
-          //     authorId: {
-          //       equals: parent.id,
-          //     }
-          //   }
-          // });
-          // return posts;
         } catch {
           return null;
         }
@@ -163,7 +140,6 @@ const UserType = new GraphQLObjectType({
     },
     userSubscribedTo: {
       type: new GraphQLList(UserType),
-      // resolve: async (parent, _, context) => {
         resolve: async (parent, _, context, info) => {
         try {
           let dl = context.dataloaders.get(info.fieldNodes);
@@ -183,23 +159,12 @@ const UserType = new GraphQLObjectType({
                   subscribedToUser: true,
                 }
               });
-              // const sortedInIdsOrder = ids.map(id => users.filter(user => user.id === id));
               const sortedInIdsOrder = ids.map(id => users.filter(user => user.subscribedToUser.some((user) => user.subscriberId === id)));
               return sortedInIdsOrder;
             });
             context.dataloaders.set(info.fieldNodes, dl);
           }
           return dl.load(parent.id);
-          // const users: Array<typeof UserType> | Array<null> = await context.prisma.user.findMany({
-          //   where: {
-          //     subscribedToUser: {
-          //       some: {
-          //         subscriberId: parent.id,
-          //       },
-          //     },
-          //   },
-          // });;
-          // return users;
         } catch {
           return null;
         }
@@ -207,7 +172,6 @@ const UserType = new GraphQLObjectType({
     },
     subscribedToUser: {
       type: new GraphQLList(UserType),
-      // resolve: async (parent, _, context) => {
         resolve: async (parent, _, context, info) => {
         try {
           let dl = context.dataloaders.get(info.fieldNodes);
@@ -227,23 +191,12 @@ const UserType = new GraphQLObjectType({
                 userSubscribedTo: true,
               }
               });
-              // const sortedInIdsOrder = ids.map(id => users.filter(user => user.id === id));
               const sortedInIdsOrder = ids.map(id => users.filter(user => user.userSubscribedTo.some((sub) => sub.authorId === id)));
               return sortedInIdsOrder;
             });
             context.dataloaders.set(info.fieldNodes, dl);
           }
           return dl.load(parent.id);
-          // const users: Array<typeof UserType> | Array<null> = await context.prisma.user.findMany({
-          //   where: {
-          //     userSubscribedTo: {
-          //       some: {
-          //         authorId: parent.id,
-          //       },
-          //     },
-          //   },
-          // });;
-          // return users;
         } catch {
           return null;
         }
@@ -282,8 +235,7 @@ export const RootQuery = new GraphQLObjectType({
     post: {
       type: PostType,
       args: { id: { type: new GraphQLNonNull(UUIDType) } },
-      // resolve: async (_, args: { id: string }, context) => {
-        resolve: async (_, args: { id: string }, context, info) => {
+        resolve: async (_, args: { id: string }, context, _info) => {
         try {
           const post: typeof PostType | null = await context.prisma.post.findUnique({
             where: {
