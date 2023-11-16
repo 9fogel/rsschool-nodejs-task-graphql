@@ -9,7 +9,7 @@ const mySchema: GraphQLSchema = new GraphQLSchema({
 });
 
 const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
-  // const { prisma, httpErrors } = fastify;
+  const { prisma } = fastify;
 
   fastify.route({
     url: '/',
@@ -42,7 +42,10 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         schema: mySchema,
         source: query,
         variableValues: variables,
-        contextValue: fastify,
+        contextValue: {
+          prisma,
+          dataloaders: new WeakMap(),
+        }
       });
       return result;
     },
